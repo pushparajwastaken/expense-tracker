@@ -2,7 +2,7 @@ export type User = {
   username: string;
   email: string;
   telegramId?: string;
-  isOnboarded: boolean;
+  isOnBoarded: boolean;
   budget?: number;
   createdAt: Date;
 };

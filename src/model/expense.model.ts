@@ -18,7 +18,7 @@ const expenseSchema: Schema<Expense> = new Schema(
     amount: {
       type: Number,
       required: true,
-      min: 0,
+      min: [0, "Amount should not be below 0"],
     },
     category: {
       type: String,

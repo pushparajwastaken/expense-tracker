@@ -39,8 +39,8 @@ async function dbConnect(): Promise<mongoose.Connection> {
     });
   }
   try {
-    const db = await cached.promise;
-    cached.conn = db.connections[0];
+    const db = await cached.promise; //mongoose.connect returns mongoose instance
+    cached.conn = db.connections[0]; //actual connections is inside this
     console.log("DB Connected Successfully");
     return cached.conn;
   } catch (error) {

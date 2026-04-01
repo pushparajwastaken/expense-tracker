@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-
+import UserModel from "@/model/user.model";
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
@@ -21,10 +21,9 @@ export const authOptions: AuthOptions = {
       if (!existingUser) {
         existingUser = await UserModel.create({
           email: user.email,
-          username: user.name,
+          username: user.name ?? "Anonymous",
           isOnBoarded: false,
           budget: 0,
-          createdAt: new Date(),
         });
       }
       user._id = existingUser._id.toString();

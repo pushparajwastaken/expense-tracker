@@ -4,5 +4,4 @@ export type User = {
   telegramId?: string;
   isOnBoarded: boolean;
   budget?: number;
-  createdAt: Date;
 };

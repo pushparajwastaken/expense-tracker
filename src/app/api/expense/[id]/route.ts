@@ -1,10 +1,9 @@
 import { getUser } from "@/helper/getUser";
-import UserModel from "@/model/user.model";
+
 import mongoose from "mongoose";
 import ExpenseModel from "@/model/expense.model";
 import dbConnect from "@/lib/dbConnect";
 import { success, error } from "@/helper/apiResponse";
-import { request } from "http";
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } },

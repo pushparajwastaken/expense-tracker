@@ -27,8 +27,7 @@ export const expenseLLMSchema = z.object({
     "Repairs",
   ]),
 
-  title: z.string().min(1), // 🔥 NEW
-
+  title: z.string().min(1),
   note: z.string().optional(),
 
   currency: z.enum(["INR", "USD", "EUR"]).default("INR"),

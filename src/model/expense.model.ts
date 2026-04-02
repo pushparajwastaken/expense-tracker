@@ -7,6 +7,7 @@ export interface Expense extends Document {
   note?: string;
   date: Date;
   currency: string;
+  recurringId: mongoose.Types.ObjectId;
 }
 const expenseSchema: Schema<Expense> = new Schema(
   {
@@ -14,6 +15,10 @@ const expenseSchema: Schema<Expense> = new Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    recurringId: {
+      type: mongoose.Types.ObjectId,
+      ref: "RecurringPayment",
     },
     amount: {
       type: Number,

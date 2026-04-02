@@ -1,6 +1,7 @@
 import { getUser } from "@/helper/getUser";
 import ExpenseModel from "@/model/expense.model";
 import dbConnect from "@/lib/dbConnect";
+import RecurringPaymentModel from "@/model/recurring.model";
 import { success, error } from "@/helper/apiResponse";
 import { parseExpense } from "@/lib/llm/parseExpense";
 export async function POST(request: Request) {
@@ -15,11 +16,32 @@ export async function POST(request: Request) {
       return error("Note is required", 400);
     }
     const parsed = await parseExpense(body.note);
-    const expense = await ExpenseModel.create({
-      ...parsed,
-      userId: user._id,
-    });
-    return success(expense);
+    if (parsed.amount === 0) {
+      return error("Could not understand expense", 400);
+    }
+    if (parsed.type === "expense") {
+      const expense = await ExpenseModel.create({
+        userId: user._id,
+        amount: parsed.amount,
+        category: parsed.category,
+        note: parsed.note,
+        currency: parsed.currency,
+      });
+      return success(expense);
+    }
+    if (parsed.type === "recurring" && parsed.frequency) {
+      const recurringPayment = await RecurringPaymentModel.create({
+        userId: user._id,
+        title: parsed.title,
+        amount: parsed.amount,
+        category: parsed.category,
+        note: parsed.note,
+        currency: parsed.currency,
+        frequency: parsed.frequency,
+        nextDueDate: parsed.nextDueDate || new Date(),
+      });
+      return success(recurringPayment);
+    }
   } catch (err: any) {
     console.error("Error updating the expense", err);
     return error(err?.message || "Something went wrong", 400);

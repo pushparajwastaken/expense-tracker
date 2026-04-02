@@ -3,17 +3,24 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface RecurringPayment extends Document {
   userId: mongoose.Types.ObjectId;
   amount: number;
-  dueDate: Date;
+  nextDueDate: Date;
   category: string;
   note?: string;
   currency: string;
+  title: string;
+  interval: number; // e.g. every 2 months
   frequency: string;
 }
 const RecurringPaymentSchema: Schema<RecurringPayment> = new Schema(
   {
     userId: {
-      types: mongoose.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    interval: { type: Number },
+    title: {
+      type: String,
       required: true,
     },
     amount: {
@@ -21,7 +28,7 @@ const RecurringPaymentSchema: Schema<RecurringPayment> = new Schema(
       required: true,
       min: [0, "Amount should not be below 0"],
     },
-    dueDate: {
+    nextDueDate: {
       type: Date,
       required: true,
     },
@@ -35,7 +42,7 @@ const RecurringPaymentSchema: Schema<RecurringPayment> = new Schema(
       default: "INR",
     },
     frequency: {
-      enum: ["weekly", "monthly", "half-yearly", "yearly"],
+      enum: ["weekly", "monthly", "yearly"],
       type: String,
       required: true,
     },

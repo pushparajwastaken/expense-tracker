@@ -20,7 +20,7 @@ const userSchema: Schema<User> = new Schema(
       unique: true,
     },
     telegramId: {
-      type: String,
+      type: String || null,
     },
     isOnBoarded: {
       default: false,

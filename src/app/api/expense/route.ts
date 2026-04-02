@@ -6,31 +6,29 @@ import { success, error } from "@/helper/apiResponse";
 import { parseExpense } from "@/lib/llm/parseExpense";
 export async function POST(request: Request) {
   await dbConnect();
+
   try {
     const user = await getUser();
+
     if (!user?._id) {
       return error("Unauthorized", 401);
     }
+
     const body = await request.json();
+
     if (!body?.note) {
       return error("Note is required", 400);
     }
+
     const parsed = await parseExpense(body.note);
+
     if (parsed.amount === 0) {
       return error("Could not understand expense", 400);
     }
-    if (parsed.type === "expense") {
-      const expense = await ExpenseModel.create({
-        userId: user._id,
-        amount: parsed.amount,
-        category: parsed.category,
-        note: parsed.note,
-        currency: parsed.currency,
-      });
-      return success(expense);
-    }
+
+    // 🔁 recurring
     if (parsed.type === "recurring" && parsed.frequency) {
-      const recurringPayment = await RecurringPaymentModel.create({
+      const recurring = await RecurringPaymentModel.create({
         userId: user._id,
         title: parsed.title,
         amount: parsed.amount,
@@ -40,10 +38,23 @@ export async function POST(request: Request) {
         frequency: parsed.frequency,
         nextDueDate: parsed.nextDueDate || new Date(),
       });
-      return success(recurringPayment);
+
+      return success(recurring, 201);
     }
+
+    // 💸 expense
+    const expense = await ExpenseModel.create({
+      userId: user._id,
+      amount: parsed.amount,
+      category: parsed.category,
+      note: parsed.note,
+      currency: parsed.currency,
+    });
+
+    return success(expense, 201);
   } catch (err: any) {
-    console.error("Error updating the expense", err);
+    console.error("Error creating expense", err);
+
     return error(err?.message || "Something went wrong", 400);
   }
 }

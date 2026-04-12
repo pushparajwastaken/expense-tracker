@@ -23,35 +23,41 @@ export async function POST(req: Request) {
       const token = text.split(" ")[1];
 
       if (!token) {
-        await sendMessage(
-          chatId,
-          "⚠️ Please open the link from the app to connect.",
-        );
+        await sendMessage(chatId, "Please open the link from app.");
         return success("OK");
       }
 
       try {
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-        const chatId = String(body?.message?.chat?.id);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+          userId: string;
+        };
+
+        const telegramChatId = String(chatId);
+
         const user = await UserModel.findById(decoded.userId);
 
         if (!user) {
-          await sendMessage(chatId, "❌ Invalid link");
-          return new Response("OK");
+          await sendMessage(chatId, "Invalid link.");
+          return success("OK");
         }
 
-        user.telegramId = chatId;
+        if (user.telegramId && user.telegramId !== telegramChatId) {
+          await sendMessage(chatId, "Telegram already linked.");
+          return success("OK");
+        }
+
+        user.telegramId = telegramChatId;
         await user.save();
 
         await sendMessage(
           chatId,
-          "✅ Connected!\n\nNow send expenses like:\n'spent 200 on food'",
+          "Connected successfully! Send expenses like:\nspent 200 on food",
         );
       } catch {
-        await sendMessage(chatId, "❌ Link expired or invalid");
+        await sendMessage(chatId, "Link expired or invalid.");
       }
 
-      return new Response("OK");
+      return success("OK");
     }
 
     // 🔒 2. CHECK USER LINKED

@@ -3,8 +3,6 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface User extends Document {
   username: string;
   email: string;
-  telegramId?: string;
-  isOnBoarded: boolean;
   budget?: number;
 }
 
@@ -19,13 +17,7 @@ const userSchema: Schema<User> = new Schema(
       required: true,
       unique: true,
     },
-    telegramId: {
-      type: String || null,
-    },
-    isOnBoarded: {
-      default: false,
-      type: Boolean,
-    },
+
     budget: {
       type: Number,
       default: 0,

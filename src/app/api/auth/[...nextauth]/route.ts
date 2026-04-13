@@ -22,12 +22,11 @@ export const authOptions: AuthOptions = {
         existingUser = await UserModel.create({
           email: user.email,
           username: user.name ?? "Anonymous",
-          isOnBoarded: false,
+
           budget: 0,
         });
       }
       user._id = existingUser._id.toString();
-      user.isOnBoarded = existingUser.isOnBoarded;
       user.budget = existingUser.budget;
       return true;
     },

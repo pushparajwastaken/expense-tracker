@@ -2,7 +2,7 @@ import UserModel from "@/model/user.model";
 import { getUser } from "@/helper/getUser";
 import dbConnect from "@/lib/dbConnect";
 import { success, error } from "@/helper/apiResponse";
-import { updateTag } from "next/cache";
+
 
 type BudgetBody = {
   budget: number;

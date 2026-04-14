@@ -2,7 +2,6 @@ import { getUser } from "@/helper/getUser";
 import InsightModel from "@/model/insight.model";
 import { success, error } from "@/helper/apiResponse";
 import dbConnect from "@/lib/dbConnect";
-import { getInsights } from "@/lib/llm/getInsight";
 import ExpenseModel from "@/model/expense.model";
 function formatInsight(insight: any) {
   return {

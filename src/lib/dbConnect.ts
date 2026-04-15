@@ -13,7 +13,7 @@ declare global {
     promise: Promise<typeof import("mongoose")> | null; // stores ongoing connection attempt
   };
 }
-let cached = global.mongoose || { conn: null, promise: null }; //if connection already exists reuse it otherwise initialize a new cache
+const cached = global.mongoose || { conn: null, promise: null }; //if connection already exists reuse it otherwise initialize a new cache
 //only one connection per server instance
 //avoids reconnecting on every api call
 global.mongoose = cached;

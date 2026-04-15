@@ -3,31 +3,48 @@ import { success, error } from "@/helper/apiResponse";
 import ExpenseModel from "@/model/expense.model";
 import UserModel from "@/model/user.model";
 import dbConnect from "@/lib/dbConnect";
+import mongoose from "mongoose";
+
+type TotalResult = {
+  total: number;
+};
+
+type CategoryResult = {
+  _id: string;
+  total: number;
+};
+
+type WeekResult = {
+  _id: number;
+  total: number;
+};
+
 export async function GET(request: Request) {
   await dbConnect();
+
   try {
     const user = await getUser();
     if (!user?._id) {
       return error("Unauthorized", 401);
     }
-    const userId = user._id;
-    //this gives a date like :-2026-04-02T14:23:45.123Z
-    const now = new Date();
-    //now.getFullYear-2026
-    //now.getMonth-3
-    //getDate-2
-    //new Date(year,month,date)
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
+    const { searchParams } = new URL(request.url);
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    //TOTAL SPENT
-    const result = await ExpenseModel.aggregate([
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const rangeStart = from ? new Date(from) : startOfMonth;
+    const rangeEnd = to ? new Date(to) : endOfMonth;
+    const userId = new mongoose.Types.ObjectId(user._id);
+
+    const totalResult = await ExpenseModel.aggregate<TotalResult>([
       {
         $match: {
           userId,
           date: {
-            $gte: startOfMonth, //all expenses with date greater than startofMonth
-            $lt: endOfMonth, //all expenses with date lesser than end of month
+            $gte: rangeStart,
+            $lt: rangeEnd,
           },
         },
       },
@@ -38,21 +55,28 @@ export async function GET(request: Request) {
         },
       },
     ]);
-    const totalSpent = result[0]?.total || 0;
+    const totalSpent = totalResult[0]?.total || 0;
 
-    //Category Wise Spent Money
-    const categoryData = await ExpenseModel.aggregate([
-      { $match: { userId } },
+    const categoryData = await ExpenseModel.aggregate<CategoryResult>([
+      {
+        $match: {
+          userId,
+          date: {
+            $gte: rangeStart,
+            $lt: rangeEnd,
+          },
+        },
+      },
       {
         $group: {
           _id: "$category",
           total: { $sum: "$amount" },
         },
       },
+      { $sort: { total: -1 } },
     ]);
-    //Monthly Spent
 
-    const Monthresult = await ExpenseModel.aggregate([
+    const monthResult = await ExpenseModel.aggregate<TotalResult>([
       {
         $match: {
           userId,
@@ -70,9 +94,8 @@ export async function GET(request: Request) {
       },
     ]);
 
-    const totalMonthSpent = Monthresult[0]?.total || 0;
-    //Weekly Spending
-    const weekData = await ExpenseModel.aggregate([
+    const totalMonthSpent = monthResult[0]?.total || 0;
+    const weekData = await ExpenseModel.aggregate<WeekResult>([
       {
         $match: {
           userId,
@@ -90,9 +113,11 @@ export async function GET(request: Request) {
       },
       { $sort: { _id: 1 } },
     ]);
-    const dbUser = await UserModel.findById(userId).select("budget");
+
+    const dbUser = await UserModel.findById(user._id).select("budget");
     const budget = dbUser?.budget || 0;
     const budgetLeft = budget - totalMonthSpent;
+
     return success({
       totalSpent,
       budget,
@@ -101,8 +126,8 @@ export async function GET(request: Request) {
       weekData,
       categoryData,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Error getting analytics", err);
-    return error(err.message || "Something went wrong");
+    return error(err instanceof Error ? err.message : "Something went wrong");
   }
 }

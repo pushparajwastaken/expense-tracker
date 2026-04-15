@@ -1,37 +1,39 @@
-import UserModel from "@/model/user.model";
 import { getUser } from "@/helper/getUser";
+import { error, success } from "@/helper/apiResponse";
 import dbConnect from "@/lib/dbConnect";
-import { success, error } from "@/helper/apiResponse";
-import { z } from "zod";
-
-const budgetSchema = z.object({
-  budget: z.coerce.number().min(0, "Budget cannot be below 0"),
-});
+import UserModel from "@/model/user.model";
+import { onBoardingSchema } from "@/validators/onBoarding.schema";
 
 export async function PATCH(request: Request) {
+  await dbConnect();
+
   try {
-    await dbConnect();
     const user = await getUser();
     if (!user?._id) {
       return error("Unauthorized", 401);
     }
 
-    const { budget } = budgetSchema.parse(await request.json());
+    const parsed = onBoardingSchema.parse(await request.json());
     const updatedUser = await UserModel.findByIdAndUpdate(
       user._id,
       {
-        budget,
+        username: parsed.username,
+        budget: parsed.budget,
+        isOnBoarded: true,
       },
       {
         new: true,
+        runValidators: true,
       },
-    );
+    ).select("username email budget isOnBoarded");
+
     if (!updatedUser) {
-      return error("User not found or unable to update");
+      return error("User not found", 404);
     }
+
     return success(updatedUser);
   } catch (err) {
-    console.error("Error updating the budget", err);
+    console.error("Error updating onboarding", err);
     return error(err instanceof Error ? err.message : "Something went wrong");
   }
 }

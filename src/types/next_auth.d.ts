@@ -7,6 +7,7 @@ declare module "next-auth" {
     username?: string;
     email: string;
     budget?: number;
+    isOnBoarded?: boolean;
   }
   interface Session {
     user: {
@@ -14,6 +15,7 @@ declare module "next-auth" {
       username?: string;
       email: string;
       budget?: number;
+      isOnBoarded?: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -23,5 +25,6 @@ declare module "next-auth/jwt" {
     username?: string;
     email: string;
     budget?: number;
+    isOnBoarded?: boolean;
   }
 }

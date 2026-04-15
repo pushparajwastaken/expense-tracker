@@ -22,18 +22,21 @@ export const authOptions: AuthOptions = {
         existingUser = await UserModel.create({
           email: user.email,
           username: user.name ?? "Anonymous",
-
           budget: 0,
+          isOnBoarded: false,
         });
       }
       user._id = existingUser._id.toString();
+      user.username = existingUser.username;
       user.budget = existingUser.budget;
+      user.isOnBoarded = existingUser.isOnBoarded;
       return true;
     },
     async jwt({ token, user }) {
       if (user) {
         token._id = user._id;
         token.email = user.email;
+        token.username = user.username;
         token.isOnBoarded = user.isOnBoarded;
         token.budget = user.budget;
       }
@@ -43,12 +46,13 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         session.user._id = token._id;
         session.user.email = token.email;
+        session.user.username = token.username;
         session.user.isOnBoarded = token.isOnBoarded;
         session.user.budget = token.budget;
       }
       return session;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ baseUrl }) {
       return `${baseUrl}/dashboard`;
     },
   },

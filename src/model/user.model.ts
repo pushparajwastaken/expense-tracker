@@ -4,6 +4,7 @@ export interface User extends Document {
   username: string;
   email: string;
   budget?: number;
+  isOnBoarded: boolean;
 }
 
 const userSchema: Schema<User> = new Schema(
@@ -21,6 +22,10 @@ const userSchema: Schema<User> = new Schema(
     budget: {
       type: Number,
       default: 0,
+    },
+    isOnBoarded: {
+      type: Boolean,
+      default: false,
     },
   },
   {

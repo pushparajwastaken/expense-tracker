@@ -23,7 +23,6 @@ async function dbConnect(): Promise<mongoose.Connection> {
   if (!process.env.MONGODB_URI) {
     throw new Error("Mongodb Uri is not defined");
   }
-  const MONGODB_URI = process.env.MONGODB_URI;
 
   //if already connected don't reconnect
   if (cached.conn) {
@@ -33,7 +32,7 @@ async function dbConnect(): Promise<mongoose.Connection> {
 
   //create connection promise to prevent simultaneous connection attempts
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
+    cached.promise = mongoose.connect(process.env.MONGODB_URI, {
       bufferCommands: false, //queries fail fast if not connected
       maxPoolSize: 10, //avoids db overload
     });
@@ -49,5 +48,4 @@ async function dbConnect(): Promise<mongoose.Connection> {
     throw error;
   }
 }
-
 export default dbConnect;

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const expenseSchema = z.object({
+export const expenseSchema = z.object({
   category: z.string().min(1, "Category is required").max(50),
   amount: z.number().positive("Amount must be positive"),
   description: z.string().max(500).optional(),

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Container } from "@/components/container";
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
@@ -19,3 +20,5 @@ export default function Home() {
     </div>
   );
 }
+=======
+>>>>>>> parent of d2f530f (add dashboard)

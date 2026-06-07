@@ -1,14 +1,14 @@
 import { getSession } from "@/lib/checkSession";
 import { pool } from "@/lib/db";
 import { expenseSchema } from "@/schema/expenseSchema";
-
+import { NextRequest } from "next/server";
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getSession();
-    const expenseId = params.id;
+    const { id: expenseId } = await params;
     const request = await req.json();
     const result = expenseSchema.safeParse(request);
 
@@ -49,11 +49,11 @@ export async function PATCH(
 }
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getSession();
-    const expenseId = params.id;
+    const { id: expenseId } = await params;
     const deletedExpense = await pool.query(
       `
       DELETE FROM expenses

@@ -6,7 +6,10 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req });
   const { pathname } = req.nextUrl;
 
-  if ((pathname.startsWith("/dashboard") || pathname.startsWith("/expenses")) && !token) {
+  if (
+    (pathname.startsWith("/dashboard") || pathname.startsWith("/expenses")) &&
+    !token
+  ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 

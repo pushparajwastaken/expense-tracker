@@ -19,12 +19,6 @@ export const Navbar = () => {
       <div className="logo">TrackWise</div>
 
       <div className="links">
-        {links.map((link) => (
-          <a className="link-items" key={link.title} href={link.href}>
-            {link.title}
-          </a>
-        ))}
-
         <button
           className="btn"
           onClick={() =>

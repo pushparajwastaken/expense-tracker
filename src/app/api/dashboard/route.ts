@@ -42,6 +42,7 @@ export async function GET(req: Request) {
         ),
       ]);
     return Response.json({
+      budget: Number(budgetLeft.rows[0]?.budget ?? 0),
       budgetLeft: Number(budgetLeft.rows[0]?.budget_left ?? 0),
       weeklyComparisons: weeklyComparisons.rows,
       categorySpent: categorySpent.rows,
@@ -49,6 +50,10 @@ export async function GET(req: Request) {
     });
   } catch (error: any) {
     console.log(error);
-    return Response.json({ success: false, error: error.message });
+    const isAuth = error.message === "Unauthorized";
+    return Response.json(
+      { success: false, error: error.message },
+      { status: isAuth ? 401 : 500 },
+    );
   }
 }

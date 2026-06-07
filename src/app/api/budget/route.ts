@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     await pool.query(
       `
         UPDATE users SET budget=$1 WHERE id=$2`,
-      [budget, user.id],
+      [budget.data.budget, user.id],
     );
     return Response.json({
       message: "Budget updated successfully",

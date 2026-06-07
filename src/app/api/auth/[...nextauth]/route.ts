@@ -40,14 +40,9 @@ export const authOptions: AuthOptions = {
       const pool = new Pool({
         connectionString: process.env.DB_CONNECTION_URI,
       });
-      const result = await pool.query(
-        `
-    SELECT id
-    FROM users
-    WHERE email = $1
-    `,
-        [token.email],
-      );
+      const result = await pool.query(`SELECT id FROM users WHERE email = $1`, [
+        token.email,
+      ]);
 
       if (result.rows.length > 0) {
         token.userId = result.rows[0].id;
